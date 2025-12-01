@@ -225,6 +225,7 @@ fun TopSection() {
 
 @Composable
 fun MainServicesSection(services: List<ServiceItem>) {
+    //Here is main services
 
 }
 
