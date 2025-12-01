@@ -231,7 +231,7 @@ fun MainServicesSection(services: List<ServiceItem>) {
 
 @Composable
 fun BannerSection() {
-
+    //Here is banner section
 }
 
 @Composable
