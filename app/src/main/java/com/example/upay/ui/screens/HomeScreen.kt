@@ -8,6 +8,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -15,6 +16,7 @@ import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -27,6 +29,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.upay.R
+import kotlinx.coroutines.delay
 
 // Colors
 val UpayYello = Color(0xFFFFCC00)
@@ -160,7 +163,7 @@ fun MainServicesSection(services: List<ServiceItem>) {
         columns = GridCells.Fixed(4),
         modifier = Modifier
             .fillMaxWidth()
-            .height(250.dp)
+            .height(200.dp)
             .padding(horizontal = 8.dp),
         contentPadding = PaddingValues(vertical = 16.dp),
         userScrollEnabled = false
@@ -204,18 +207,30 @@ fun ServiceItemView(item: ServiceItem) {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BannerSection() {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(120.dp)
-            .padding(8.dp)
-            .background(Color.LightGray),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(text = "Banner Section", color = Color.DarkGray)
+    val banners = listOf(
+        R.drawable.banner_1,
+        R.drawable.banner_2,
+        R.drawable.banner_3,
+        R.drawable.banner_4,
+        R.drawable.banner_5
+    )
+
+    val pagerState = rememberPagerState(initialPage = 0) {
+        banners.size
     }
+
+    LaunchedEffect(Unit) { 
+        while(true) {
+            delay(3000)
+            val nextPage = (pagerState.currentPage + 1) % banners.size
+            pagerState.animateScrollToPage(nextPage)
+        }
+    }
+
+
 }
 
 @Composable
@@ -224,7 +239,7 @@ fun OtherServicesSection(services: List<ServiceItem>) {
         columns = GridCells.Fixed(4),
         modifier = Modifier
             .fillMaxWidth()
-            .height(250.dp)
+            .height(200.dp)
             .padding(horizontal = 8.dp),
         contentPadding = PaddingValues(vertical = 16.dp),
         userScrollEnabled = false
@@ -249,7 +264,7 @@ fun UpayBottomNavigationBar() {
         modifier = Modifier
             .fillMaxWidth()
             .background(UpayYellow30Percent)
-            .padding(vertical = 8.dp)
+            .padding(vertical = 4.dp)
             .navigationBarsPadding(),
         horizontalArrangement = Arrangement.SpaceEvenly,
         verticalAlignment = Alignment.CenterVertically
@@ -261,18 +276,18 @@ fun UpayBottomNavigationBar() {
                 modifier = Modifier
                     .weight(1f)
                     .clickable { }
-                    .padding(vertical = 4.dp)
+                    .padding(vertical = 2.dp)
             ) {
                 Icon(
                     imageVector = icon,
                     contentDescription = label,
                     tint = UpayDarkBlue,
-                    modifier = Modifier.size(20.dp)
+                    modifier = Modifier.size(30.dp)
                 )
                 Spacer(modifier = Modifier.height(2.dp))
                 Text(
                     text = label,
-                    fontSize = 8.sp,
+                    fontSize = 12.sp,
                     color = UpayDarkBlue
                 )
             }
