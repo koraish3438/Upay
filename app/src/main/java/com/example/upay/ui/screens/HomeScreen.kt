@@ -31,6 +31,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.upay.R
 import kotlinx.coroutines.delay
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
+
 
 // Colors
 val UpayYello = Color(0xFFFFCC00)
@@ -68,35 +72,59 @@ val otherServices = listOf(
     ServiceItem("অন্যান্য", Icons.Default.AddCircleOutline)
 )
 
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen() {
-    
+    val scope = rememberCoroutineScope()
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     Scaffold(
-        topBar = { TopSection() },
+        topBar = {
+            TopSection(onBalanceClick = {
+                scope.launch { sheetState.show() }
+            })
+        },
         bottomBar = { UpayBottomNavigationBar() }
     ) { paddingValues ->
-        LazyColumn(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .background(Color.White),
-            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            item { MainServicesSection(services = mainServices) }
-            item { BannerSection() }
-            item {
-                OtherServicesSection(services = otherServices)
-                Spacer(modifier = Modifier.height(30.dp))
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.White),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                item { MainServicesSection(services = mainServices) }
+                item { BannerSection() }
+                item {
+                    OtherServicesSection(services = otherServices)
+                    Spacer(modifier = Modifier.height(30.dp))
+                }
+            }
+
+            // Material 3 Modal Bottom Sheet
+            if (sheetState.isVisible) {
+                ModalBottomSheet(
+                    onDismissRequest = {
+                        scope.launch { sheetState.hide() }
+                    },
+                    sheetState = sheetState,
+                    dragHandle = null, 
+                    containerColor = Color.White
+                ) {
+                    BottomSheetContent()
+                }
             }
         }
     }
 }
 
+
 @Composable
-fun TopSection() {
+fun TopSection(onBalanceClick: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -140,7 +168,7 @@ fun TopSection() {
         }
 
         Button(
-            onClick = { },
+            onClick = onBalanceClick,
             shape = RoundedCornerShape(20.dp),
             colors = ButtonDefaults.buttonColors(containerColor = UpayDarkBlue),
             contentPadding = PaddingValues(horizontal = 14.dp, vertical = 8.dp),
@@ -158,6 +186,115 @@ fun TopSection() {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun BottomSheetContent() {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(Color.White, RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp))
+            .padding(horizontal = 24.dp, vertical = 16.dp)
+    ) {
+        // Drag handle
+        Box(
+            modifier = Modifier
+                .size(width = 40.dp, height = 4.dp)
+                .background(Color.LightGray, RoundedCornerShape(2.dp))
+                .align(Alignment.CenterHorizontally)
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+        
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(80.dp),
+            shape = RoundedCornerShape(16.dp),
+            colors = CardDefaults.cardColors(containerColor = Color(0xFFFFF9E6))
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 16.dp, vertical = 12.dp),
+                verticalArrangement = Arrangement.SpaceBetween
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "বর্তমান ব্যালেন্স",
+                        fontSize = 16.sp,
+                        color = Color.Black,
+                        fontWeight = FontWeight.Medium
+                    )
+                    Text(
+                        text = "১০,০০০ টাকা",
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.Black
+                    )
+                }
+
+                Text(
+                    text = "আপনার ব্যালেন্স আপডেট হয়েছে",
+                    fontSize = 14.sp,
+                    color = Color.Gray
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        // Cash Reward
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(80.dp),
+            shape = RoundedCornerShape(16.dp),
+            colors = CardDefaults.cardColors(containerColor = Color(0xFFE6F2FF)) // হালকা নীল
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 16.dp, vertical = 12.dp),
+                verticalArrangement = Arrangement.SpaceBetween
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "ক্যাশ রিওয়ার্ড",
+                        fontSize = 16.sp,
+                        color = Color.Black,
+                        fontWeight = FontWeight.Medium
+                    )
+                    Text(
+                        text = "৫০০ টাকা",
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.Black
+                    )
+                }
+
+                Text(
+                    text = "আপনি এখন রিওয়ার্ড রিডিম করতে পারবেন",
+                    fontSize = 14.sp,
+                    color = Color.Gray
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+    }
+}
+
+
+
+// === Main & Other Services Sections ===
 @Composable
 fun MainServicesSection(services: List<ServiceItem>) {
     LazyVerticalGrid(
@@ -169,9 +306,22 @@ fun MainServicesSection(services: List<ServiceItem>) {
         contentPadding = PaddingValues(vertical = 16.dp),
         userScrollEnabled = false
     ) {
-        items(services) { item ->
-            ServiceItemView(item = item)
-        }
+        items(services) { item -> ServiceItemView(item = item) }
+    }
+}
+
+@Composable
+fun OtherServicesSection(services: List<ServiceItem>) {
+    LazyVerticalGrid(
+        columns = GridCells.Fixed(4),
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(200.dp)
+            .padding(horizontal = 8.dp),
+        contentPadding = PaddingValues(vertical = 16.dp),
+        userScrollEnabled = false
+    ) {
+        items(services) { item -> ServiceItemView(item = item) }
     }
 }
 
@@ -208,6 +358,7 @@ fun ServiceItemView(item: ServiceItem) {
     }
 }
 
+// === Banner Section ===
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BannerSection() {
@@ -218,12 +369,9 @@ fun BannerSection() {
         R.drawable.banner_4,
         R.drawable.banner_5
     )
+    val pagerState = rememberPagerState(initialPage = 0) { banners.size }
 
-    val pagerState = rememberPagerState(initialPage = 0) {
-        banners.size
-    }
-
-    //auto slide after 3 second
+    // Auto slide
     LaunchedEffect(Unit) {
         while (true) {
             delay(5000)
@@ -232,19 +380,8 @@ fun BannerSection() {
         }
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 8.dp)
-    ) {
-
-        // Banner slider
-        HorizontalPager(
-            state = pagerState,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(160.dp)
-        ) { page ->
+    Column(modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
+        HorizontalPager(state = pagerState, modifier = Modifier.fillMaxWidth().height(160.dp)) { page ->
             Image(
                 painter = painterResource(id = banners[page]),
                 contentDescription = "Banner",
@@ -253,48 +390,22 @@ fun BannerSection() {
                     .clip(RoundedCornerShape(12.dp))
             )
         }
-
         Spacer(modifier = Modifier.height(8.dp))
-
-        // Dots indicator
-        Row(
-            horizontalArrangement = Arrangement.Center,
-            modifier = Modifier.fillMaxWidth()
-        ) {
+        Row(horizontalArrangement = Arrangement.Center, modifier = Modifier.fillMaxWidth()) {
             repeat(banners.size) { index ->
                 Box(
                     modifier = Modifier
-
                         .padding(3.dp)
                         .size(if (index == pagerState.currentPage) 10.dp else 6.dp)
                         .clip(CircleShape)
-                        .background(
-                            if (index == pagerState.currentPage) Color(0xFF0D47A1) // active color
-                            else Color.LightGray // inactive color
-                        )
+                        .background(if (index == pagerState.currentPage) UpayDarkBlue else Color.LightGray)
                 )
             }
         }
     }
 }
 
-@Composable
-fun OtherServicesSection(services: List<ServiceItem>) {
-    LazyVerticalGrid(
-        columns = GridCells.Fixed(4),
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(200.dp)
-            .padding(horizontal = 8.dp),
-        contentPadding = PaddingValues(vertical = 16.dp),
-        userScrollEnabled = false
-    ) {
-        items(services) { item ->
-            ServiceItemView(item = item)
-        }
-    }
-}
-
+// === Bottom Navigation ===
 @Composable
 fun UpayBottomNavigationBar() {
     val items = listOf(
@@ -304,7 +415,6 @@ fun UpayBottomNavigationBar() {
         "ইনবক্স" to Icons.Default.Inbox,
         "আরো" to Icons.Default.MoreHoriz
     )
-
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -318,23 +428,11 @@ fun UpayBottomNavigationBar() {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center,
-                modifier = Modifier
-                    .weight(1f)
-                    .clickable { }
-                    .padding(vertical = 2.dp)
+                modifier = Modifier.weight(1f).clickable { }
             ) {
-                Icon(
-                    imageVector = icon,
-                    contentDescription = label,
-                    tint = UpayDarkBlue,
-                    modifier = Modifier.size(30.dp)
-                )
+                Icon(imageVector = icon, contentDescription = label, tint = UpayDarkBlue, modifier = Modifier.size(30.dp))
                 Spacer(modifier = Modifier.height(2.dp))
-                Text(
-                    text = label,
-                    fontSize = 12.sp,
-                    color = UpayDarkBlue
-                )
+                Text(text = label, fontSize = 12.sp, color = UpayDarkBlue)
             }
         }
     }
