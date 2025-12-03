@@ -1,31 +1,26 @@
 package com.example.upay.ui.screens
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowForward
-import androidx.compose.material3.Icon
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material.icons.filled.Fingerprint
+import androidx.compose.material.icons.filled.Face
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.upay.ui.components.NumericKeypad
+import com.example.upay.R
 import com.example.upay.ui.components.PinInputField
 
 val UpayYellow = Color(0xFFFDD835)
@@ -38,15 +33,10 @@ fun PinInputScreen(
     val maxPinLength = 4
 
     fun onKeyClick(key: String) {
-        if (key == "DEL") {
-            if(pinValue.isNotEmpty()) pinValue = pinValue.dropLast(1)
-        }
-        else if (pinValue.length < maxPinLength) {
-            pinValue += key
-        }
-
-        if (pinValue.length == maxPinLength) {
-            onPinVerified()
+        when (key) {
+            "DEL" -> if (pinValue.isNotEmpty()) pinValue = pinValue.dropLast(1)
+            "OK" -> if (pinValue.length == maxPinLength) onPinVerified()
+            else -> if (pinValue.length < maxPinLength) pinValue += key
         }
     }
 
@@ -54,43 +44,157 @@ fun PinInputScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .background(Color.White)
                 .padding(padding),
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.SpaceBetween // Space to push keypad to bottom
         ) {
-            Spacer(modifier = Modifier.height(32.dp))
-
-            Text(
-                text = "আপনার ৪ ডিজিটের পিন প্রদান করুন",
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold
-            )
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            Row(
-                verticalAlignment = Alignment.CenterVertically
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier
+                    .padding(horizontal = 24.dp)
             ) {
-                PinInputField(pinValue, maxPinLength)
+                Spacer(modifier = Modifier.height(16.dp))
 
-                Spacer(modifier = Modifier.width(16.dp))
-
-                Surface(
-                    shape = CircleShape,
-                    color = if (pinValue.length == maxPinLength) UpayYellow else Color.Gray,
-                    modifier = Modifier.padding(12.dp)
+                // Logo + language
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                        contentDescription = null,
-                        tint = Color.White,
-                        modifier = Modifier.padding(12.dp)
+                    Image(
+                        painter = painterResource(id = R.drawable.logo),
+                        contentDescription = "Upay Logo",
+                        modifier = Modifier.size(60.dp)
+                    )
+                    Text(
+                        text = "বাংলা",
+                        color = UpayYellow,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.clickable { /* Language change */ }
                     )
                 }
+
+                Spacer(modifier = Modifier.height(32.dp))
+
+                // Instruction text
+                Text(
+                    text = "আপনার ৪ ডিজিটের\n   পিন প্রদান করুন",
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Black,
+                    lineHeight = 32.sp
+                )
+
+                Spacer(modifier = Modifier.height(32.dp))
+
+                // PIN input field
+                PinInputField(pinValue, maxPinLength)
+
+                Spacer(modifier = Modifier.height(42.dp))
+
+                // Biometric icons with labels
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(48.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Icon(
+                            imageVector = Icons.Filled.Face,
+                            contentDescription = "Face ID",
+                            tint = UpayYellow,
+                            modifier = Modifier
+                                .size(48.dp)
+                                .clickable { /* Face ID */ }
+                        )
+                        Text(text = "Face", fontWeight = FontWeight.Bold, color = Color.Black)
+                    }
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Icon(
+                            imageVector = Icons.Filled.Fingerprint,
+                            contentDescription = "Fingerprint",
+                            tint = UpayYellow,
+                            modifier = Modifier
+                                .size(48.dp)
+                                .clickable { /* Fingerprint */ }
+                        )
+                        Text(text = "Fingerprint", fontWeight = FontWeight.Bold, color = Color.Black)
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(100.dp))
+
+                // Forgot PIN
+                Text(
+                    text = "পিন ভুলে গিয়েছেন?",
+                    color = UpayYellow,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.clickable { /* Forgot PIN */ }
+                )
             }
 
-            Spacer(modifier = Modifier.weight(1f))
+            // Keypad at bottom
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                shape = RoundedCornerShape(10.dp),
+                colors = CardDefaults.cardColors(containerColor = Color(0xFFF5F5F5))
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    val keys = listOf(
+                        listOf("1", "2", "3"),
+                        listOf("4", "5", "6"),
+                        listOf("7", "8", "9"),
+                        listOf("DEL", "0", "OK")
+                    )
 
-            NumericKeypad(onKeyClick = { key -> onKeyClick(key) })
+                    keys.forEach { row ->
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(12.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 6.dp)
+                        ) {
+                            row.forEach { key ->
+                                Box(
+                                    contentAlignment = Alignment.Center,
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .height(50.dp)
+                                        .background(
+                                            color = if (key == "DEL" || key == "OK") UpayYellow else Color.White,
+                                            shape = CircleShape
+                                        )
+                                        .clickable { onKeyClick(key) }
+                                ) {
+                                    val icon = when (key) {
+                                        "DEL" -> Icons.Filled.ArrowBack
+                                        "OK" -> Icons.Filled.Check
+                                        else -> null
+                                    }
+                                    if (icon != null) {
+                                        Icon(
+                                            imageVector = icon,
+                                            contentDescription = key,
+                                            tint = Color.White
+                                        )
+                                    } else {
+                                        Text(
+                                            text = key,
+                                            fontSize = 18.sp,
+                                            fontWeight = FontWeight.Bold,
+                                            color = Color.Black
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 }
