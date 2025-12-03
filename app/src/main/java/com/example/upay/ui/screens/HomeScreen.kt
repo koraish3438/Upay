@@ -8,6 +8,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -222,15 +223,59 @@ fun BannerSection() {
         banners.size
     }
 
-    LaunchedEffect(Unit) { 
-        while(true) {
-            delay(3000)
+    //auto slide after 3 second
+    LaunchedEffect(Unit) {
+        while (true) {
+            delay(5000)
             val nextPage = (pagerState.currentPage + 1) % banners.size
             pagerState.animateScrollToPage(nextPage)
         }
     }
 
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp)
+    ) {
 
+        // Banner slider
+        HorizontalPager(
+            state = pagerState,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(160.dp)
+        ) { page ->
+            Image(
+                painter = painterResource(id = banners[page]),
+                contentDescription = "Banner",
+                modifier = Modifier
+                    .fillMaxSize()
+                    .clip(RoundedCornerShape(12.dp))
+            )
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // Dots indicator
+        Row(
+            horizontalArrangement = Arrangement.Center,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            repeat(banners.size) { index ->
+                Box(
+                    modifier = Modifier
+
+                        .padding(3.dp)
+                        .size(if (index == pagerState.currentPage) 10.dp else 6.dp)
+                        .clip(CircleShape)
+                        .background(
+                            if (index == pagerState.currentPage) Color(0xFF0D47A1) // active color
+                            else Color.LightGray // inactive color
+                        )
+                )
+            }
+        }
+    }
 }
 
 @Composable
